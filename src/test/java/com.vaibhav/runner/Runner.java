@@ -9,7 +9,6 @@ import io.cucumber.junit.CucumberOptions;
 @CucumberOptions(
         features = "src/test/resources/com.vaibhav.features", // Placeholder
         glue = {"com.vaibhav.stepDefinition", "com.vaibhav.hooks"},
-//        plugin = {"pretty", "com.vaibhav.tools.StepLoggerPlugin"},// Placeholder
         tags = "not @wip",
         plugin = {"com.vaibhav.tools.StepLoggerPlugin"},// Placeholder
         monochrome = true

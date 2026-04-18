@@ -1,0 +1,42 @@
+{
+  "amazon": {
+    "production": {
+      "baseUrl": "https://www.amazon.in",
+      "android": {
+        "deviceName": "emulator-5554",
+        "udid": "emulator-5554",
+        "app": "",
+        "appPackage": "",
+        "appActivity": "",
+        "automationName": "UiAutomator2"
+      },
+      "ios": {
+        "udid": "",
+        "platformVersion": "18.0.1",
+        "automationName": "XCUITest",
+        "platformName": "iOS",
+        "bundleId": ""
+      }
+    }
+  },
+  "flipkart": {
+    "production": {
+      "baseUrl": "https://www.flipkart.com",
+      "android": {
+        "deviceName": "emulator-5554",
+        "udid": "emulator-5554",
+        "app": "",
+        "appPackage": "",
+        "appActivity": "",
+        "automationName": "UiAutomator2"
+      },
+      "ios": {
+        "udid": "",
+        "platformVersion": "18.0.1",
+        "automationName": "XCUITest",
+        "platformName": "iOS",
+        "bundleId": ""
+      }
+    }
+  }
+}
