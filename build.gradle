@@ -1,0 +1,121 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // TEST FRAMEWORK
+    testImplementation 'junit:junit:4.13.2'
+
+    // Cucumber (BDD)
+    testImplementation 'io.cucumber:cucumber-java:7.18.1'
+    testImplementation 'io.cucumber:cucumber-junit:7.18.1'
+
+    // SELENIUM + APPIUM
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
+    testImplementation 'io.appium:java-client:8.3.0'
+
+    // Auto driver management (very useful)
+    testImplementation 'io.github.bonigarcia:webdrivermanager:5.8.0'
+
+    // ASSERTIONS
+    testImplementation 'org.assertj:assertj-core:3.26.3'
+
+    // LOGGING (LOG4J2 CLEAN SETUP)
+    testImplementation 'org.apache.logging.log4j:log4j-api:2.23.1'
+    testImplementation 'org.apache.logging.log4j:log4j-core:2.23.1'
+
+    // SLF4J → Log4j2 bridge
+    testImplementation 'org.slf4j:slf4j-api:2.0.0'
+    testImplementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1'
+
+    // UTILITIES
+    implementation 'commons-io:commons-io:2.15.1'
+
+    // HTML/emails/UI content
+    implementation 'org.jsoup:jsoup:1.17.2'
+}
+
+tasks.named('build') {
+    dependsOn 'classes'
+    finalizedBy {
+        if (gradle.startParameter.taskNames.contains('run')) {
+            throw new GradleException("Cannot run 'run' task during build")
+        }
+    }
+}
+
+tasks.register('run', Test) {
+    dependsOn clean
+    group = 'verification'
+    description = 'Runs the Cucumber tests'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    doFirst {
+        systemProperty 'product', System.getenv('PRODUCT') ?: System.getProperty('product')
+        systemProperty 'environment', System.getenv('ENVIRONMENT') ?: System.getProperty('environment')
+        systemProperty 'platform', System.getenv('PLATFORM') ?: System.getProperty('platform')
+        def tagExpression = "${System.getenv('TAG') ?: System.getProperty('tag')} and @${System.getenv('PLATFORM') ?: System.getProperty('platform')}"
+        systemProperty 'cucumber.filter.tags', tagExpression
+        systemProperty 'rootDir', rootDir.toString()
+
+
+        println "PRODUCT: ${System.getenv('PRODUCT')}"
+        println "ENVIRONMENT: ${System.getenv('ENVIRONMENT')}"
+        println "PLATFORM: ${System.getenv('PLATFORM')}"
+        println "TAG: ${System.getenv('TAG')}"
+        println "ROOT DIRECTORY: $rootDir"
+
+    }
+
+    testLogging {
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+    }
+
+    afterSuite { desc, result ->
+        if (!desc.parent) { // will match the outermost suite
+            def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+            def startItem = '||  '
+            def endItem = '  ||'
+            def borderChar = '='
+            def border = borderChar * (startItem.length() + output.length() + endItem.length())
+            def bold = '\033[1m'  // ANSI escape code for bold text
+            def reset = '\033[0m'  // ANSI escape code to reset formatting
+
+            println()
+            println("${bold}${border}${reset}")
+            println("${bold}${startItem}${output}${endItem}${reset}")
+            println("${bold}${border}${reset}")
+        }
+    }
+}

@@ -7,6 +7,12 @@ build
 build.properties
 run_multiple_tests.sh
 
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
 # Compiled class file
 *.class
 
